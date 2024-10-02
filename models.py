@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
+from flask_login import UserMixin
 
 app = Flask(__name__)
 
@@ -9,32 +10,35 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 
-class Client(db.Model):
+class Client(db.Model,UserMixin):
     __tablename__ = 'clients'
     id = db.Column(db.Integer,primary_key=True)
-    username=db.Column(db.String,nullable=False)
+    name=db.Column(db.String,nullable=False)
+    email=db.Column(db.String,unique=True,nullable=False)
     phone_number =db.Column(db.Integer,unique=True,nullable=False)
     password =db.Column(db.String,nullable=False)
+    role = db.Column(db.String,nullable=False,default='client')
     appointment = db.relationship('Appointments',backref='client_appointment')
 
-
-class Barber(db.Model):
+class Barber(db.Model,UserMixin):
     __tablename__ = 'barbers'
     id = db.Column(db.Integer,primary_key=True)
-    first_name = db.Column(db.String,nullable =False)
-    last_name=db.Column(db.String,nullable =False)
+    name = db.Column(db.String,nullable =False)
     email=db.Column(db.String,unique=True,nullable=False)
     phone_number=db.Column(db.Integer,unique=True,nullable=False)
     password =db.Column(db.String,nullable=False)
+    role = db.Column(db.String,nullable=False,default='barber')
+    is_approved = db.Column(db.Boolean,nullable=False,default=False)
     appointment = db.relationship('Appointments',backref='barber_appointment')
 
-
-class Admin(db.Model):
+class Admin(db.Model,UserMixin):
     __tablename__ = 'admin'
     id = db.Column(db.Integer,primary_key=True)
     name = db.Column(db.String,unique=True,nullable=False)
     email = db.Column(db.String,unique=True,nullable=False)
+    phone_number = db.Column(db.Integer,unique=True,nullable=False)
     password =db.Column(db.String,nullable=False)
+    role = db.Column(db.String,nullable=False,default='admin')
 
 class Appointments(db.Model):
     __tablename__ = 'appointments'
